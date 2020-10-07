@@ -17,4 +17,6 @@ LINK_DIRECTORIES(${ROOTLIBDIR})
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pthread -m64 -std=c++11 -stdlib=libc++")
 
 ADD_EXECUTABLE(RandomTest RandomGeneratorTest.cpp)
+ADD_EXECUTABLE(ImproveGridTest ImproveGridTest.cpp OneDIntegralSimple.cpp)
 TARGET_LINK_LIBRARIES(RandomTest Core Imt RIO Net Hist Graf Graf3d Gpad ROOTVecOps Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc ROOTDataFrame m dl pthread)
+TARGET_LINK_LIBRARIES(ImproveGridTest Core Imt RIO Net Hist Graf Graf3d Gpad ROOTVecOps Tree TreePlayer Rint Postscript Matrix Physics MathCore Thread MultiProc ROOTDataFrame m dl pthread)

@@ -4,7 +4,7 @@ if (POLICY CMP0025)
 endif ()
 PROJECT(VEGAS1D CXX)
 
-SET(VEGAS1D_VERSION "0.1.0")
+SET(VEGAS1D_VERSION "0.1.")
 
 SET(ROOTINCLUDEDIR "/usr/local/Cellar/root/6.20.04_1/include/root")
 SET(ROOTLIBDIR "/usr/local/Cellar/root/6.20.04_1/lib/root")

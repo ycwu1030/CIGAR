@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
     }
     TCanvas *c1 = new TCanvas("c1","",800,600);
     h1->Draw();
-    c1->SaveAs("../auxillary/random_test.png");
+    c1->SaveAs("./auxillary/random_test.png");
 
     return 0;
 }

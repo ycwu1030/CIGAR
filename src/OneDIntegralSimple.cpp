@@ -82,8 +82,21 @@ double Integrand(double x, void *param)
     }
     return (1.0+x_true*x_true)/(1.0-x_true*x_true)*2;//(xmax-xmin);
 }
-
-double VEGAS1D(double xmin, double xmax, double &error)
+double IntegrandWW2hh(double x, void *param)
+{
+    double *par = (double *)param;
+    double s = par[0];
+    double MH = 125.0;
+    double MW = 80.385;
+    double MH2 = MH*MH;
+    double MW2 = MW*MW;
+    double cth = x*2.0-1.0;
+    double cth2 = cth*cth;
+    double num = 8*pow(MH2,3)*(cth2*s-2*MW2+s)+2*MH2*MH2*(16*(2*cth2+1)*MW2*MW2-40*cth2*MW2*s+(cth2-3)*s*s) + MH2*s*(16*(cth2-3)*MW2*MW2 + 4*(7*cth2+4)*MW2*s-(cth2-1)*s*s) - 8*(cth2-2)*MW2*MW2*s*s - 2*(cth2+3)*MW2*s*s*s;
+    double den = 16*MW2*MW2*pow(s-MH2,2)*pow(-4*MH2*(cth2*(4*MW2-s)+s)+s*(cth2*(4*MW2-s)+s)+4*MH2*MH2,2);
+    return pow(num,2)/den;
+}
+double VEGAS1D(double sqrts, double &error)
 {
     // Constants declear
     const int N = 80;  // The fixed number of increments from xmin to xmax
@@ -110,7 +123,7 @@ double VEGAS1D(double xmin, double xmax, double &error)
     default_random_engine generator;
     double x_rand;
     double f_integrand;
-    double xrange[2] = {xmin,xmax};
+    double shat[1] = {sqrts*sqrts};
     bool first_time = true;
     double result_accumulate=0;
     double result2_accumulate=0;
@@ -136,7 +149,7 @@ double VEGAS1D(double xmin, double xmax, double &error)
         for (int i = 0; i < NM; i++)
         {
             x_rand = dist(generator);
-            f_integrand = Integrand(x_rand,(void*)xrange);
+            f_integrand = IntegrandWW2hh(x_rand,(void*)shat);
             h1->Fill(x_rand,abs(f_integrand));
             h2->Fill(x_rand,f_integrand);
             h3->Fill(x_rand,pow(f_integrand,2));

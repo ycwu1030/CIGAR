@@ -10,16 +10,16 @@ VEGAS_Map::VEGAS_Map()
     N_INTERVALS = 1000;
     N_EDGES = N_INTERVALS + 1;
     alpha = 1.5;
-    Init();
+    Reset_Map();
 }
 VEGAS_Map::VEGAS_Map(int Intervals)
 {
     N_INTERVALS = Intervals;
     N_EDGES = N_INTERVALS + 1;
     alpha = 1.5;
-    Init();
+    Reset_Map();
 }
-void VEGAS_Map::Init()
+void VEGAS_Map::Reset_Map()
 {
     x_edges.clear();
     dx_steps.clear();
@@ -61,10 +61,11 @@ double VEGAS_Map::Get_Jac(double y)
     int id = Get_Interval_ID(y);
     return N_INTERVALS*dx_steps[id];
 }
-void VEGAS_Map::Accumulate_Weight(double y, double weight)
+void VEGAS_Map::Accumulate_Weight(double y, double f)
 {
+    // f is the value of integrand!
     int id = Get_Interval_ID(y);
-    weights[id] += pow(weight*Get_Jac(y),2);
+    weights[id] += pow(f*Get_Jac(y),2);
     counts[id] += 1;
 }
 void VEGAS_Map::Smooth_Weight()

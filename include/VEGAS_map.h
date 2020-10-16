@@ -15,15 +15,18 @@ class VEGAS_Map
 private:
     int N_INTERVALS;
     int N_EDGES; // N_INTERVALS + 1;
-    double alpha; // 
+    double alpha; // The parameter control the smooth of weight
+    
     std::vector<double> x_edges; // The edges in x, size = N_EDGES;
     std::vector<double> dx_steps; // The step for each interval, size = N_INTERVALS;
+    
     std::vector<double> weights; // The weight in each interval, used to improve the grid map, size = N_INTERVALS;
     std::vector<double> counts; // Count the numbers of random numbers in specific interval
+    
     std::vector<double> smoothed_weights; // Smoothed weights, also renormalized.
     double summed_weights; // The all summed smoothed weights
     double delta_weights; // The step for weights
-    void Init();
+
     void Smooth_Weight();
     void Reset_Weight();
     void Checking_Weight();
@@ -35,14 +38,18 @@ public:
     VEGAS_Map(int Intervals);
     ~VEGAS_Map(){};
 
-    void Accumulate_Weight(double y, double weight);
+    void Reset_Map();
+    void Accumulate_Weight(double y, double f); // f is the integrand, no other manupulation
     void Update_Map();
-    // void Update_Map(std::vector<double> di);
+
+    int Get_N_Interval(){return N_INTERVALS;}
     int Get_Interval_ID(double y);
     double Get_Interval_Offset(double y);
+
     double Get_X(double y);
     double Get_Jac(double y);
-    void Dump_Edges(std::string filename);
+
+    // void Dump_Edges(std::string filename);
     void Print_Edges();
     void Print_Weights();
 };

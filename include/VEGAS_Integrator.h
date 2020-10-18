@@ -1,4 +1,8 @@
+#ifndef VEGAS_INTEGRATOR_H
+#define VEGAS_INTEGRATOR_H
+
 #include "VEGAS_map.h"
+#include "VEGAS_Stratify.h"
 #include <random> // The random number generator and distributions. c++11
 #include <vector>
 
@@ -21,12 +25,14 @@ private:
     void* userdata;
 
     VEGAS_Map map;
+    VEGAS_Stratify strat;
 
     std::mt19937 rng; // Mersenne twister random number engine
     URD dist; // uniform distribution in double in [0.0, 1.0)
 
     std::vector<double> Results;
     std::vector<double> Sigma2;
+
 
 public:
     VEGAS_Integrator(){};
@@ -44,3 +50,4 @@ public:
 };
 
 
+#endif //VEGAS_INTEGRATOR_H

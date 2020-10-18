@@ -29,6 +29,19 @@ double func_WW2hh(vector<double> x, void *param)
     double den = 16*MW2*MW2*pow(s-MH2,2)*pow(-4*MH2*(cth2*(4*MW2-s)+s)+s*(cth2*(4*MW2-s)+s)+4*MH2*MH2,2);
     return pow(num,2)/den;
 }
+double func_4D(vector<double> x, void *param)
+{
+    double r1[4] = {0.33,0.5,0.5,0.5};
+    double r2[4] = {0.67,0.5,0.5,0.5};
+    double x1=0;
+    double x2=0;
+    for (int i = 0; i < 4; i++)
+    {
+        x1 += -100*pow(x[i]-r1[i],2);
+        x2 += -100*pow(x[i]-r2[i],2);
+    }
+    return exp(x1) + exp(x2);
+}
 int main(int argc, char const *argv[])
 {
     VEGAS_Integrator inter;
@@ -48,5 +61,9 @@ int main(int argc, char const *argv[])
         inter.Integration();
         cout<<"Ecm: "<<energies[i]<<" res: "<<inter.Get_Result()/pow(energies[i],2)<<" err: "<<inter.Get_Error()/pow(energies[i],2)<<" chi2: "<<inter.Get_Chisq()<<endl;
     }
+    inter.Set_Integrand(func_4D,4,NULL);
+    inter.Improve_Grid();
+    inter.Integration();
+    cout<<"Result: "<<inter.Get_Result()<<" Error: "<<inter.Get_Error()<<" chi2: "<<inter.Get_Chisq()<<endl;
     return 0;
 }

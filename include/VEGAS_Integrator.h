@@ -2,7 +2,7 @@
 #include <random> // The random number generator and distributions. c++11
 #include <vector>
 
-typedef double (*INTEGRAND)(double x, void *param);
+typedef double (*INTEGRAND)(std::vector<double> x, void *param);
 using URD=std::uniform_real_distribution<double>;
 
 enum VEGAS_INTEGRATOR_VERBOSE
@@ -17,6 +17,7 @@ class VEGAS_Integrator
 {
 private:
     INTEGRAND func;
+    int N_DIM;
     void* userdata;
 
     VEGAS_Map map;
@@ -31,7 +32,7 @@ public:
     VEGAS_Integrator(){};
     ~VEGAS_Integrator(){};
 
-    void Set_Integrand(INTEGRAND integrand, void* param);
+    void Set_Integrand(INTEGRAND integrand, int dim, void* param);
     void Improve_Grid(int Iter = 5, int Neval = 10000);
     void Integration(int Iter = 5, int Neval = 50000);
     

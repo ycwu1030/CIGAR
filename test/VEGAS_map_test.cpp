@@ -4,12 +4,12 @@
 
 using namespace std;
 
-double func_weight(double x)
+double func_weight(vector<double> x)
 {
     double dx = 0.23;
     double xmin = -1.0 + dx;
     double xmax = 1.0 - dx;
-    double x_true = x*2.0-1.0;
+    double x_true = x[0]*2.0-1.0;
     if (x_true < xmin || x_true > xmax)
     {
         return 0;
@@ -34,10 +34,12 @@ int main(int argc, char const *argv[])
     {
         cout<<"=========>"<<endl;
         // GM.Print_Edges();
+        vector<double> y(1);
+        vector<double> x(1);
         for (int j = 0; j < 10000; j++)
         {
-            double y = distribution(generator);
-            double x = GM.Get_X(y);
+            y[0] = distribution(generator);
+            x = GM.Get_X(y);
             double weight = func_weight(x);
             GM.Accumulate_Weight(y,weight);
         }

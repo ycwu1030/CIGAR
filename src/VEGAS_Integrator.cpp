@@ -4,25 +4,29 @@
 using namespace std;
 
 
-void VEGAS_Integrator::Set_Integrand(INTEGRAND integrand, void* param)
+void VEGAS_Integrator::Set_Integrand(INTEGRAND integrand, int dim, void* param)
 {
     func = integrand;
+    N_DIM = dim;
     userdata = param;
     Results.clear();
     Sigma2.clear();
-    map.Reset_Map();
+    map = VEGAS_Map(dim);
 }
 
 void VEGAS_Integrator::Improve_Grid(int Iter, int Neval)
 {
-    double y; // Random number between 0 to 1;
-    double x; // The argument for integrand;
+    vector<double> y(N_DIM); // Random number between 0 to 1;
+    vector<double> x(N_DIM); // The argument for integrand;
     double f_eval; // evaluated integrand value;
     for (int it = 0; it < Iter; it++)
     {
         for (int ne = 0; ne < Neval; ne++)
         {
-            y = dist(rng);
+            for (int i_dim = 0; i_dim < N_DIM; i_dim++)
+            {
+                y[i_dim] = dist(rng);
+            }
             x = map.Get_X(y);
             f_eval = func(x,userdata);
             map.Accumulate_Weight(y,f_eval);  
@@ -32,8 +36,8 @@ void VEGAS_Integrator::Improve_Grid(int Iter, int Neval)
 }
 void VEGAS_Integrator::Integration(int Iter, int Neval)
 {
-    double y; // Random number between 0 to 1;
-    double x; // The argument for integrand;
+    vector<double> y(N_DIM); // Random number between 0 to 1;
+    vector<double> x(N_DIM); // The argument for integrand;
     double f_eval; // evaluated integrand value;
     double Jac; // The Jacobian from y to x;
     for (int it = 0; it < Iter; it++)
@@ -42,7 +46,10 @@ void VEGAS_Integrator::Integration(int Iter, int Neval)
         double sig2 = 0;
         for (int ne = 0; ne < Neval; ne++)
         {
-            y = dist(rng);
+            for (int i_dim = 0; i_dim < N_DIM; i_dim++)
+            {
+                y[i_dim] = dist(rng);
+            }
             x = map.Get_X(y);
             f_eval = func(x,userdata);
             Jac = map.Get_Jac(y);

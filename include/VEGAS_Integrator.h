@@ -43,8 +43,8 @@ public:
     void Set_Verbose(VEGAS_INTEGRATOR_VERBOSE level);
 
     void Set_Integrand(INTEGRAND integrand, int dim, void* param);
-    void Improve_Grid(int Iter = 5, int Neval = 10000);
-    void Integration(int Iter = 5, int Neval = 50000);
+    void Improve_Grid();
+    void Integration(double eps_rel = 1e-3, double eps_abs = 1e-9);
     
     
     double Get_Result();

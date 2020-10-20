@@ -46,21 +46,21 @@ int main(int argc, char const *argv[])
 {
     VEGAS_Integrator inter;
     
-    for (double dx = 0.02; dx < 0.31; dx += 0.02)
-    {
-        inter.Set_Integrand(func_weight, 1, &dx);
-        inter.Improve_Grid();
-        inter.Integration();
-        cout<<"dx: "<<dx<<" res: "<<inter.Get_Result()<<" err: "<<inter.Get_Error()<<" chi2: "<<inter.Get_Chisq()<<endl;
-    }
-    double energies[37] = {1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2200,2400,2600,2800,3000,3200,3400,3600,3800,4000,5000,6000,7000,8000,9000,10000,12000,14000,16000,18000,20000,22000,24000,26000,28000,30000};
-    for (int i = 0; i < 37; i++)
-    {
-        inter.Set_Integrand(func_WW2hh, 1, &energies[i]);
-        inter.Improve_Grid();
-        inter.Integration();
-        cout<<"Ecm: "<<energies[i]<<" res: "<<inter.Get_Result()/pow(energies[i],2)<<" err: "<<inter.Get_Error()/pow(energies[i],2)<<" chi2: "<<inter.Get_Chisq()<<endl;
-    }
+    // for (double dx = 0.02; dx < 0.31; dx += 0.02)
+    // {
+    //     inter.Set_Integrand(func_weight, 1, &dx);
+    //     inter.Improve_Grid();
+    //     inter.Integration();
+    //     cout<<"dx: "<<dx<<" res: "<<inter.Get_Result()<<" err: "<<inter.Get_Error()<<" chi2: "<<inter.Get_Chisq()<<endl;
+    // }
+    // double energies[37] = {1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2200,2400,2600,2800,3000,3200,3400,3600,3800,4000,5000,6000,7000,8000,9000,10000,12000,14000,16000,18000,20000,22000,24000,26000,28000,30000};
+    // for (int i = 0; i < 37; i++)
+    // {
+    //     inter.Set_Integrand(func_WW2hh, 1, &energies[i]);
+    //     inter.Improve_Grid();
+    //     inter.Integration();
+    //     cout<<"Ecm: "<<energies[i]<<" res: "<<inter.Get_Result()/pow(energies[i],2)<<" err: "<<inter.Get_Error()/pow(energies[i],2)<<" chi2: "<<inter.Get_Chisq()<<endl;
+    // }
     inter.Set_Integrand(func_4D,4,NULL);
     inter.Improve_Grid();
     inter.Integration();

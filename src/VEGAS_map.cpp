@@ -10,7 +10,7 @@ VEGAS_Map::VEGAS_Map()
     N_DIM = 1;
     N_INTERVALS = 1000;
     N_EDGES = N_INTERVALS + 1;
-    alpha = 1.5;
+    alpha = 0.5;
     Reset_Map();
 }
 VEGAS_Map::VEGAS_Map(int NDIM)
@@ -18,7 +18,7 @@ VEGAS_Map::VEGAS_Map(int NDIM)
     N_DIM = NDIM;
     N_INTERVALS = 1000;
     N_EDGES = N_INTERVALS + 1;
-    alpha = 1.5;
+    alpha = 0.5;
     Reset_Map();
 }
 VEGAS_Map::VEGAS_Map(int NDIM, int Intervals)
@@ -26,7 +26,7 @@ VEGAS_Map::VEGAS_Map(int NDIM, int Intervals)
     N_DIM = NDIM;
     N_INTERVALS = Intervals;
     N_EDGES = N_INTERVALS + 1;
-    alpha = 1.5;
+    alpha = 0.5;
     Reset_Map();
 }
 void VEGAS_Map::Reset_Map()

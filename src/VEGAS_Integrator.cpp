@@ -3,6 +3,10 @@
 
 using namespace std;
 
+void VEGAS_Integrator::Set_Verbose(VEGAS_INTEGRATOR_VERBOSE level)
+{
+    verb = level;
+}
 
 void VEGAS_Integrator::Set_Integrand(INTEGRAND integrand, int dim, void* param)
 {
@@ -23,11 +27,26 @@ void VEGAS_Integrator::Improve_Grid(int Iter, int Neval)
     double Jac; 
     strat.Set_Stratification_System(N_DIM,Neval);
     strat.Set_NEVAL(Neval);
+    double dV = strat.Get_V_Cubic();
+    if (verb >= INFO)
+    {
+        cout<<"==========================================================="<<endl;
+        cout<<"| Improving the mapping grid and stratification grid      |"<<endl;
+        cout<<"==========================================================="<<endl;
+        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+    }
     for (int it = 0; it < Iter; it++)
     {
+        double Sig = 0;
+        double Err2 = 0;
+        int NEVAL = 0;
         for (int inc = 0; inc < strat.Get_NHYPERCUBICS(); inc++)
         {
-            for (int ne = 0; ne < strat.Get_NH(inc); ne++)
+            double Jf = 0;
+            double Jf2 = 0;
+            int neval = strat.Get_NH(inc);
+            NEVAL += neval;
+            for (int ne = 0; ne < neval; ne++)
             {
                 for (int i_dim = 0; i_dim < N_DIM; i_dim++)
                 {
@@ -39,10 +58,24 @@ void VEGAS_Integrator::Improve_Grid(int Iter, int Neval)
                 Jac = map.Get_Jac(y);
                 map.Accumulate_Weight(y,f_eval);
                 strat.Accumulate_Weight(inc,f_eval*Jac);
+                Jf += f_eval*Jac;
+                Jf2 += pow(f_eval*Jac,2);
             }
+            double Ih = Jf/neval*dV;
+            double Sig2 = Jf2/neval*dV*dV - pow(Jf/neval*dV,2);
+            Sig += Ih;
+            Err2 += Sig2/neval;
         }
         map.Update_Map();
         strat.Update_DH();
+        if (verb >= INFO)
+        {
+            cout<<"| "<<it<<" | "<<NEVAL<<" | "<<Sig<<" | "<<sqrt(Err2)<<" | "<<sqrt(Err2)/Sig<<" |"<<endl;
+        } 
+    }
+    if (verb >= INFO)
+    {
+        cout<<"==========================================================="<<endl;
     }
 }
 void VEGAS_Integrator::Integration(int Iter, int Neval)
@@ -54,15 +87,24 @@ void VEGAS_Integrator::Integration(int Iter, int Neval)
     double Jac; // The Jacobian from y to x;
     strat.Set_NEVAL(Neval);
     double dV = strat.Get_V_Cubic();
+    if (verb >= INFO)
+    {
+        cout<<"=================================================================="<<endl;
+        cout<<"| Fixing the mapping grid and stratification grid, then Integral |"<<endl;
+        cout<<"=================================================================="<<endl;
+        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+    }
     for (int it = 0; it < Iter; it++)
     {
         Results.push_back(0);
         Sigma2.push_back(0);
+        int NEVAL = 0;
         for (int inc = 0; inc < strat.Get_NHYPERCUBICS(); inc++)
         {
             double Jf = 0;
             double Jf2 = 0;
             int neval = strat.Get_NH(inc);
+            NEVAL += neval;
             for (int ne = 0; ne < neval; ne++)
             {
                 for (int i_dim = 0; i_dim < N_DIM; i_dim++)
@@ -81,8 +123,17 @@ void VEGAS_Integrator::Integration(int Iter, int Neval)
             Results[Results.size()-1] += Ih;
             Sigma2[Sigma2.size()-1] += Sig2/neval;
         }
-        // Results.push_back(res/Neval);
-        // Sigma2.push_back((sig2/Neval-pow(res/Neval,2))/(Neval-1.0));
+        if (verb >= INFO)
+        {
+            cout<<"| "<<it<<" | "<<NEVAL<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1]<<" |"<<endl;
+        } 
+    }
+    if (verb >= INFO)
+    {
+        cout<<"==========================================================="<<endl;
+        cout<<"Summary: "<<endl;
+        cout<<"Sigma: "<<Get_Result()<<"  Err: "<<Get_Error()<<"  Chi2: "<<Get_Chisq()<<endl;
+        cout<<"==========================================================="<<endl;
     }
 }
 double VEGAS_Integrator::Get_Result()

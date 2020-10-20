@@ -20,6 +20,8 @@ enum VEGAS_INTEGRATOR_VERBOSE
 class VEGAS_Integrator
 {
 private:
+    VEGAS_INTEGRATOR_VERBOSE verb;
+
     INTEGRAND func;
     int N_DIM;
     void* userdata;
@@ -35,8 +37,10 @@ private:
 
 
 public:
-    VEGAS_Integrator(){};
+    VEGAS_Integrator(){verb = INFO;};
     ~VEGAS_Integrator(){};
+
+    void Set_Verbose(VEGAS_INTEGRATOR_VERBOSE level);
 
     void Set_Integrand(INTEGRAND integrand, int dim, void* param);
     void Improve_Grid(int Iter = 5, int Neval = 10000);

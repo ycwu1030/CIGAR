@@ -46,6 +46,8 @@ void VEGAS_Map::Reset_Map()
     }
     x_edges = vector<vector<double> >(N_DIM,x_edges_tmp);
     dx_steps = vector<vector<double> >(N_DIM,dx_steps_tmp);
+    x_edges_last = vector<vector<double> >(N_DIM,x_edges_tmp);
+    dx_steps_last = vector<vector<double> >(N_DIM,dx_steps_tmp);
     weights = vector<vector<double> >(N_DIM,vector<double>(N_INTERVALS,0));
     counts = vector<vector<double> >(N_DIM,vector<double>(N_INTERVALS,0));
     smoothed_weights = vector<vector<double> >(N_DIM,vector<double>(N_INTERVALS,0));
@@ -181,8 +183,8 @@ void VEGAS_Map::Update_Map()
 {
     Smooth_Weight();
     // cout<<"Updating the map"<<endl;
-    vector<vector<double> > x_edges_old = x_edges;
-    vector<vector<double> > dx_steps_old = dx_steps;
+    x_edges_last = x_edges;
+    dx_steps_last = dx_steps;
     for (int i_dim = 0; i_dim < N_DIM; i_dim++)
     {
         int current_old_interval = 0;
@@ -196,7 +198,7 @@ void VEGAS_Map::Update_Map()
                 d_accu -= smoothed_weights[i_dim][current_old_interval];
                 current_old_interval++;
             }
-            x_edges[i_dim][current_new_interval] = x_edges_old[i_dim][current_old_interval] + d_accu/smoothed_weights[i_dim][current_old_interval]*dx_steps_old[i_dim][current_old_interval];
+            x_edges[i_dim][current_new_interval] = x_edges_last[i_dim][current_old_interval] + d_accu/smoothed_weights[i_dim][current_old_interval]*dx_steps_last[i_dim][current_old_interval];
             dx_steps[i_dim][current_new_interval-1] = x_edges[i_dim][current_new_interval] - x_edges[i_dim][current_new_interval-1];
             current_new_interval++;
             if (current_new_interval >= N_INTERVALS)
@@ -258,4 +260,17 @@ void VEGAS_Map::Print_Weights()
         Checking_Weight();
         cout<<"\t\tAverage: "<<average_weight[i_dim]<<"  STD: "<<std_weight[i_dim]<<" std/ave: "<<std_weight[i_dim]/average_weight[i_dim]/N_INTERVALS<<endl;
     }
+}
+double VEGAS_Map::Checking_Map()
+{
+    double dx_ave = 1.0/N_INTERVALS;
+    double chi2 = 0;
+    for (int idim = 0; idim < N_DIM; idim++)
+    {
+        for (int i = 0; i < N_EDGES; i++)
+        {
+            chi2 += pow(x_edges[idim][i] - x_edges_last[idim][i],2)/pow(dx_ave,2);
+        }
+    }
+    return chi2/N_DIM/N_EDGES;
 }

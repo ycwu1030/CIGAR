@@ -34,9 +34,11 @@ void VEGAS_Integrator::Improve_Grid()
     }
     int iter = 0;
     int NEVAL_START = 10000;
+    double alpha_start = 0.5;
+    double alpha = alpha_start;
     double dV;
     double Res;
-    double Err2;
+    double Err;
     int neval;
     int NEVAL_REAL;
     double Jf;
@@ -45,6 +47,7 @@ void VEGAS_Integrator::Improve_Grid()
     double Sig2;
     double acc;
     strat.Set_Stratification_System(N_DIM,NEVAL_START);
+    map.Set_alpha(alpha_start);
     while (true)
     {
         // we decide to end the improvement of grid and strata when the accuracy is about 1%
@@ -52,8 +55,8 @@ void VEGAS_Integrator::Improve_Grid()
         iter++;
         strat.Set_NEVAL(NEVAL_START);
         dV = strat.Get_V_Cubic();
-        Res = 0;
-        Err2 = 0;
+        Results.push_back(0);
+        Sigma2.push_back(0);
         NEVAL_REAL = 0;
         for (int inc = 0; inc < strat.Get_NHYPERCUBICS(); inc++)
         {
@@ -78,23 +81,37 @@ void VEGAS_Integrator::Improve_Grid()
             }
             Ih = Jf/neval*dV;
             Sig2 = Jf2/neval*dV*dV - pow(Jf/neval*dV,2);
-            Res += Ih;
-            Err2 += Sig2/neval;
+            Results[Results.size()-1] += Ih;
+            Sigma2[Sigma2.size()-1] += Sig2/neval;
         }
-        map.Update_Map();
+        if (alpha > 0.05)
+        {
+            map.Update_Map();
+            alpha = alpha_start*exp(-iter/5.0);
+            map.Set_alpha(alpha);
+        }
         strat.Update_DH();
-        acc = sqrt(Err2)/Res;
+        acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];;
         if (verb >= INFO)
         {
-            cout<<"| "<<iter<<" | "<<NEVAL_REAL<<" | "<<Res<<" | "<<sqrt(Err2)<<" | "<<acc<<" |"<<endl;
+            cout<<"| "<<iter<<" | "<<NEVAL_REAL<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" | "<<map.Checking_Map()<<endl;
         } 
-        if (acc < 0.01 && iter >= 5)
+        if (iter % 5 == 0)
         {
-            break;
-        }
-        if (iter%5==0)
-        {
-            NEVAL_START = NEVAL_START + 5000;//* sqrt(acc/0.01);
+            Res = Get_Result();
+            Err = Get_Error();
+            acc = Err/Res;
+            if (verb >= INFO)
+            {
+                cout<<"| Summary of Last 5 Iter: | Res = "<< Res <<" | Err = "<< Err <<" | Acc = "<<acc<<" |"<<endl;
+            }
+            if (acc < 0.01)
+            {
+                break;
+            }
+            NEVAL_START = NEVAL_START * sqrt(acc/0.01);
+            Results.clear();
+            Sigma2.clear();
         }
     }
     if (verb >= INFO)
@@ -186,7 +203,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
             }
             if (Chi2/5.0 < 1.0)
             {
-                NEVAL_START = NEVAL_START + 5000;//* sqrt(acc/eps_rel);
+                NEVAL_START = NEVAL_START * sqrt(acc/eps_rel);
                 Results.clear();
                 Sigma2.clear();
                 continue;

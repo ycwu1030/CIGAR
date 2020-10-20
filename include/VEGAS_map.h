@@ -20,6 +20,9 @@ private:
     
     std::vector<std::vector<double> > x_edges; // The edges in x, size = N_DIM x N_EDGES;
     std::vector<std::vector<double> > dx_steps; // The step for each interval, size = N_DIM x N_INTERVALS;
+
+    std::vector<std::vector<double> > x_edges_last; // The edges in x, size = N_DIM x N_EDGES;
+    std::vector<std::vector<double> > dx_steps_last; // The step for each interval, size = N_DIM x N_INTERVALS;
     
     std::vector<std::vector<double> > weights; // The weight in each interval, used to improve the grid map, size = N_DIM x N_INTERVALS;
     std::vector<std::vector<double> > counts; // Count the numbers of random numbers in specific interval, size = N_DIM x N_INTERVALS;
@@ -41,6 +44,7 @@ public:
     ~VEGAS_Map(){};
 
     void Reset_Map();
+    void Set_alpha(double alp){alpha = alp;};
     void Accumulate_Weight(std::vector<double> y, double f); // f is the integrand, no other manupulation
     void Update_Map();
 
@@ -54,6 +58,8 @@ public:
     // void Dump_Edges(std::string filename);
     void Print_Edges();
     void Print_Weights();
+
+    double Checking_Map();
 };
 
 

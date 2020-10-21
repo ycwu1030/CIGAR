@@ -25,13 +25,6 @@ void VEGAS_Integrator::Improve_Grid()
     vector<double> x(N_DIM); // The argument for integrand;
     double f_eval; // evaluated integrand value;
     double Jac; 
-    if (verb >= INFO)
-    {
-        cout<<"==========================================================="<<endl;
-        cout<<"| Improving the mapping grid and stratification grid      |"<<endl;
-        cout<<"==========================================================="<<endl;
-        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
-    }
     int iter = 0;
     int NEVAL_START = 10000;
     double alpha_start = 0.5;
@@ -46,15 +39,71 @@ void VEGAS_Integrator::Improve_Grid()
     double Ih;
     double Sig2;
     double acc;
-    strat.Set_Stratification_System(N_DIM,NEVAL_START);
+    strat.Set_Dimension(N_DIM);
+    dV = strat.Get_V_Cubic();
     map.Set_alpha(alpha_start);
+    // Warm Up with just MAP improvement
+    if (verb >= INFO)
+    {
+        cout<<"==========================================================="<<endl;
+        cout<<"| Warm Up the VEGAS Map                                   |"<<endl;
+        cout<<"==========================================================="<<endl;
+        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+    }
+    for (int warm_iter = 0; warm_iter < 5; warm_iter++)
+    {
+        Results.push_back(0);
+        Sigma2.push_back(0);
+        Jf = 0;
+        Jf2 = 0;
+        for (int ne = 0; ne < NEVAL_START; ne++)
+        {
+            for (int i_dim = 0; i_dim < N_DIM; i_dim++)
+            {
+                yrnd[i_dim] = dist(rng);
+            }
+            x = map.Get_X(yrnd);
+            f_eval = func(x,userdata);
+            Jac = map.Get_Jac(yrnd);
+            map.Accumulate_Weight(yrnd,f_eval);
+            Jf += f_eval*Jac;
+            Jf2 += pow(f_eval*Jac,2);
+        }
+        Ih = Jf/NEVAL_START;
+        Sig2 = Jf2/NEVAL_START - pow(Jf/NEVAL_START,2);
+        Results[Results.size()-1] += Ih;
+        Sigma2[Sigma2.size()-1] += Sig2/NEVAL_START;
+        map.Update_Map();
+        acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
+        if (verb >= INFO)
+        {
+            cout<<"| "<<warm_iter<<" | "<<NEVAL_START<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" | "<<map.Checking_Map()<<endl;
+        } 
+    }
+    Res = Get_Result();
+    Err = Get_Error();
+    acc = Err/Res;
+    if (verb >= INFO)
+    {
+        cout<<"| Summary of Warm up 5 Iter: | Res = "<< Res <<" | Err = "<< Err <<" | Acc = "<<acc<<" |"<<endl;
+    }
+    Results.clear();
+    Sigma2.clear();
+
+    if (verb >= INFO)
+    {
+        cout<<"==========================================================="<<endl;
+        cout<<"| Improving the mapping grid and stratification grid      |"<<endl;
+        cout<<"==========================================================="<<endl;
+        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+    }
     while (true)
     {
         // we decide to end the improvement of grid and strata when the accuracy is about 1%
         // Every 5 iteration, we can check the accuracy, and addjust the number of evaluation
+        // Map and Strata improves every another iteration.
         iter++;
         strat.Set_NEVAL(NEVAL_START);
-        dV = strat.Get_V_Cubic();
         Results.push_back(0);
         Sigma2.push_back(0);
         NEVAL_REAL = 0;
@@ -84,14 +133,20 @@ void VEGAS_Integrator::Improve_Grid()
             Results[Results.size()-1] += Ih;
             Sigma2[Sigma2.size()-1] += Sig2/neval;
         }
-        if (alpha > 0.05)
+        if (iter % 2 != 0)
         {
-            map.Update_Map();
-            alpha = alpha_start*exp(-iter/5.0);
-            map.Set_alpha(alpha);
+            // if (alpha > 0.05)
+            // {
+                map.Update_Map();
+                // alpha = alpha_start*exp(-iter/5.0);
+                // map.Set_alpha(alpha);
+            // }
         }
-        strat.Update_DH();
-        acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];;
+        else
+        {
+            strat.Update_DH();
+        }
+        acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
             cout<<"| "<<iter<<" | "<<NEVAL_REAL<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" | "<<map.Checking_Map()<<endl;
@@ -195,7 +250,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
             acc = Err/Res;
             if (verb >= INFO)
             {
-                cout<<"| Summary of Last 5 Iter: | Res = "<< Res <<" | Err = "<< Err <<" | Chi2 = "<<Chi2<<" |"<<endl;
+                cout<<"| Summary of Last 5 Iter: | Res = "<< Res <<" | Err = "<< Err << " | acc = "<< acc <<" | Chi2 = "<<Chi2<<" |"<<endl;
             }
             if ( (acc < eps_rel || Err < eps_abs) && Chi2/5.0 < 1.0 )
             {

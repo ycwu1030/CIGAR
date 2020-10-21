@@ -6,22 +6,29 @@ using namespace std;
 void VEGAS_Stratify::Set_Dimension(int ndim)
 {
     N_DIM = ndim;
+    Reset_Storage();
 }
 void VEGAS_Stratify::Set_NEVAL(int NEVAL_EXP)
 {
     N_EVALUATES_EXPECTED = NEVAL_EXP;
 }
-void VEGAS_Stratify::Set_Stratification_System(int ndim, int NEVAL_TRAIN)
-{
-    N_DIM = ndim;
-    N_EVALUATES_TRAINED = NEVAL_TRAIN;
-    Reset_Storage();
-}
+// void VEGAS_Stratify::Set_Stratification_System(int ndim, int NEVAL_TRAIN)
+// {
+//     N_DIM = ndim;
+//     N_EVALUATES_TRAINED = NEVAL_TRAIN;
+//     Reset_Storage();
+// }
 void VEGAS_Stratify::Reset_Storage()
 {
-    N_STRAT = floor(pow(N_EVALUATES_TRAINED/4.0,1.0/N_DIM));
+    // N_STRAT = floor(pow(N_EVALUATES_TRAINED/4.0,1.0/N_DIM));
     
     N_HYPERCUBICS = pow(N_STRAT,N_DIM);
+    if (N_HYPERCUBICS > N_HYPERCUBICS_MAX)
+    {
+        N_STRAT = floor(pow(N_HYPERCUBICS_MAX,1.0/N_DIM));
+        N_HYPERCUBICS = pow(N_STRAT,N_DIM);
+    }
+    
 
     V_cubic = pow(1.0/N_STRAT, N_DIM);
     JF2 = vector<double>(N_HYPERCUBICS,0);

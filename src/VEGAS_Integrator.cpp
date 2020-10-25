@@ -1,6 +1,7 @@
 #include "VEGAS_Integrator.h"
 #include <iostream>
 #include <iomanip>
+#include <chrono>
 
 using namespace std;
 
@@ -17,6 +18,8 @@ void VEGAS_Integrator::Set_Integrand(INTEGRAND integrand, int dim, void* param)
     Results.clear();
     Sigma2.clear();
     map = VEGAS_Map(dim);
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    rng.seed(seed);
 }
 
 void VEGAS_Integrator::Improve_Grid()

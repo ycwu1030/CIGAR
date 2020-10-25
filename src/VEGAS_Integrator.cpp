@@ -1,5 +1,7 @@
 #include "VEGAS_Integrator.h"
 #include <iostream>
+#include <iomanip>
+#include <chrono>
 
 using namespace std;
 
@@ -16,6 +18,8 @@ void VEGAS_Integrator::Set_Integrand(INTEGRAND integrand, int dim, void* param)
     Results.clear();
     Sigma2.clear();
     map = VEGAS_Map(dim);
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    rng.seed(seed);
 }
 
 void VEGAS_Integrator::Improve_Grid()
@@ -45,10 +49,10 @@ void VEGAS_Integrator::Improve_Grid()
     // Warm Up with just MAP improvement
     if (verb >= INFO)
     {
-        cout<<"==========================================================="<<endl;
-        cout<<"| Warm Up the VEGAS Map                                   |"<<endl;
-        cout<<"==========================================================="<<endl;
-        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+        cout<<"======================================================================================"<<endl;
+        cout<<"| Warm Up the VEGAS Map                                                              |"<<endl;
+        cout<<"======================================================================================"<<endl;
+        cout<<"|  Iter  |    N_Eval    |     Result     |      Error     |    Acc    |  Map Changes |"<<endl;
     }
     for (int warm_iter = 0; warm_iter < 5; warm_iter++)
     {
@@ -65,6 +69,11 @@ void VEGAS_Integrator::Improve_Grid()
             x = map.Get_X(yrnd);
             f_eval = func(x,userdata);
             Jac = map.Get_Jac(yrnd);
+            if (isnan(f_eval) || isnan(Jac))
+            {
+                ne--;
+                continue;
+            }
             map.Accumulate_Weight(yrnd,f_eval);
             Jf += f_eval*Jac;
             Jf2 += pow(f_eval*Jac,2);
@@ -77,7 +86,7 @@ void VEGAS_Integrator::Improve_Grid()
         acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
-            cout<<"| "<<warm_iter<<" | "<<NEVAL_START<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" | "<<map.Checking_Map()<<endl;
+            cout<<"| "<<setw(6)<<warm_iter<<" | "<<setw(12)<<NEVAL_START<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% | "<<resetiosflags(ios::fixed)<<setw(12)<<scientific<<setprecision(5)<<map.Checking_Map()<<" |"<<endl;
         } 
     }
     Res = Get_Result();
@@ -85,17 +94,17 @@ void VEGAS_Integrator::Improve_Grid()
     acc = Err/Res;
     if (verb >= INFO)
     {
-        cout<<"| Summary of Warm up 5 Iter: | Res = "<< Res <<" | Err = "<< Err <<" | Acc = "<<acc<<" |"<<endl;
+        cout<<"| Summary of Warm up 5 Iter:   Res = "<<setw(11)<<scientific<<setprecision(5)<< Res <<"   Err = "<<setw(11)<<scientific<<setprecision(5)<< Err <<"   Acc = "<<resetiosflags(ios::scientific)<<fixed<<setw(6)<<setprecision(3)<<acc*100<<"% |"<<endl;
     }
     Results.clear();
     Sigma2.clear();
 
     if (verb >= INFO)
     {
-        cout<<"==========================================================="<<endl;
-        cout<<"| Improving the mapping grid and stratification grid      |"<<endl;
-        cout<<"==========================================================="<<endl;
-        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+        cout<<"======================================================================================"<<endl;
+        cout<<"| Improving the mapping grid and stratification grid                                 |"<<endl;
+        cout<<"======================================================================================"<<endl;
+        cout<<"|  Iter  |    N_Eval    |     Result     |      Error     |    Acc    |  Map Changes |"<<endl;
     }
     while (true)
     {
@@ -123,6 +132,11 @@ void VEGAS_Integrator::Improve_Grid()
                 x = map.Get_X(y);
                 f_eval = func(x,userdata);
                 Jac = map.Get_Jac(y);
+                if (isnan(f_eval) || isnan(Jac))
+                {
+                    ne--;
+                    continue;
+                }
                 map.Accumulate_Weight(y,f_eval);
                 strat.Accumulate_Weight(inc,f_eval*Jac);
                 Jf += f_eval*Jac;
@@ -149,7 +163,7 @@ void VEGAS_Integrator::Improve_Grid()
         acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
-            cout<<"| "<<iter<<" | "<<NEVAL_REAL<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" | "<<map.Checking_Map()<<endl;
+            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_START<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% | "<<resetiosflags(ios::fixed)<<setw(12)<<scientific<<setprecision(5)<<map.Checking_Map()<<" |"<<endl;
         } 
         if (iter % 5 == 0)
         {
@@ -158,7 +172,7 @@ void VEGAS_Integrator::Improve_Grid()
             acc = Err/Res;
             if (verb >= INFO)
             {
-                cout<<"| Summary of Last 5 Iter: | Res = "<< Res <<" | Err = "<< Err <<" | Acc = "<<acc<<" |"<<endl;
+                cout<<"| Summary of Last 5 Iter:      Res = "<<setw(11)<<scientific<<setprecision(5)<< Res <<"   Err = "<<setw(11)<<scientific<<setprecision(5)<< Err <<"   Acc = "<<resetiosflags(ios::scientific)<<fixed<<setw(6)<<setprecision(3)<<acc*100<<"% |"<<endl;
             }
             if (acc < 0.01)
             {
@@ -171,7 +185,7 @@ void VEGAS_Integrator::Improve_Grid()
     }
     if (verb >= INFO)
     {
-        cout<<"==========================================================="<<endl;
+        cout<<"======================================================================================"<<endl;
     }
 }
 void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
@@ -198,10 +212,10 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
     double acc;
     if (verb >= INFO)
     {
-        cout<<"==============================================================="<<endl;
-        cout<<"| Fixing the mapping grid, still improve strata then Integral |"<<endl;
-        cout<<"==============================================================="<<endl;
-        cout<<"|  Iter  |  N_Eval  |  Sigma [pb]  |  Error [pb]  |  Acc  |"<<endl;
+        cout<<"======================================================================="<<endl;
+        cout<<"| Fixing the mapping grid, still improve strata and Integral          |"<<endl;
+        cout<<"======================================================================="<<endl;
+        cout<<"|  Iter  |    N_Eval    |     Result     |      Error     |    Acc    |"<<endl;
     }
     while (true)
     {
@@ -226,6 +240,11 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
                 x = map.Get_X(y);
                 f_eval = func(x,userdata);
                 Jac = map.Get_Jac(y);
+                if (isnan(f_eval) || isnan(Jac))
+                {
+                    ne--;
+                    continue;
+                }
                 strat.Accumulate_Weight(inc,f_eval*Jac);
                 Jf += f_eval*Jac;
                 Jf2 += pow(f_eval*Jac,2);
@@ -239,7 +258,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
         acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
-            cout<<"| "<<iter<<" | "<<NEVAL_REAL<<" | "<<Results[Results.size()-1]<<" | "<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<acc<<" |"<<endl;
+            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_START<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% |"<<endl;
         }
         if (iter%5==0)
         {
@@ -250,7 +269,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
             acc = Err/Res;
             if (verb >= INFO)
             {
-                cout<<"| Summary of Last 5 Iter: | Res = "<< Res <<" | Err = "<< Err << " | acc = "<< acc <<" | Chi2 = "<<Chi2<<" |"<<endl;
+                cout<<"| Summary of Last 5 Iter: "<<setw(14)<<scientific<<setprecision(5)<< Res <<" | "<<setw(14)<<scientific<<setprecision(5)<< Err <<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% | Chi2 = "<<Chi2<<endl;
             }
             if ( (acc < eps_rel || Err < eps_abs) && Chi2/5.0 < 1.0 )
             {
@@ -274,10 +293,15 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
     }
     if (verb >= INFO)
     {
-        cout<<"==========================================================="<<endl;
+        Res = Get_Result();
+        Err = Get_Error();
+        Chi2 = Get_Chisq();
+        acc = Err/Res;
+        cout<<"======================================================================="<<endl;
         cout<<"Summary: "<<endl;
-        cout<<"Result: "<<Get_Result()<<"  Error: "<<Get_Error()<<"  Chi2: "<<Get_Chisq()<<endl;
-        cout<<"==========================================================="<<endl;
+        cout<<"Result: "<<setw(12)<<scientific<<setprecision(5)<<Res<<"  Error: "<<setw(12)<<scientific<<setprecision(5)<<Err<<"  Acc: "<<resetiosflags(ios::scientific)<<fixed<<setw(6)<<setprecision(3)<<acc*100<<"%  Chi2: "<<Chi2<<endl;
+        cout<<"======================================================================="<<endl;
+        cout<<resetiosflags(ios::fixed)<<setprecision(8);
     }
 }
 double VEGAS_Integrator::Get_Result()

@@ -65,6 +65,11 @@ void VEGAS_Integrator::Improve_Grid()
             x = map.Get_X(yrnd);
             f_eval = func(x,userdata);
             Jac = map.Get_Jac(yrnd);
+            if (isnan(f_eval) || isnan(Jac))
+            {
+                ne--;
+                continue;
+            }
             map.Accumulate_Weight(yrnd,f_eval);
             Jf += f_eval*Jac;
             Jf2 += pow(f_eval*Jac,2);
@@ -123,6 +128,11 @@ void VEGAS_Integrator::Improve_Grid()
                 x = map.Get_X(y);
                 f_eval = func(x,userdata);
                 Jac = map.Get_Jac(y);
+                if (isnan(f_eval) || isnan(Jac))
+                {
+                    ne--;
+                    continue;
+                }
                 map.Accumulate_Weight(y,f_eval);
                 strat.Accumulate_Weight(inc,f_eval*Jac);
                 Jf += f_eval*Jac;
@@ -226,6 +236,11 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
                 x = map.Get_X(y);
                 f_eval = func(x,userdata);
                 Jac = map.Get_Jac(y);
+                if (isnan(f_eval) || isnan(Jac))
+                {
+                    ne--;
+                    continue;
+                }
                 strat.Accumulate_Weight(inc,f_eval*Jac);
                 Jf += f_eval*Jac;
                 Jf2 += pow(f_eval*Jac,2);

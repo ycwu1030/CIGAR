@@ -163,7 +163,7 @@ void VEGAS_Integrator::Improve_Grid()
         acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
-            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_START<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% | "<<resetiosflags(ios::fixed)<<setw(12)<<scientific<<setprecision(5)<<map.Checking_Map()<<" |"<<endl;
+            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_REAL<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% | "<<resetiosflags(ios::fixed)<<setw(12)<<scientific<<setprecision(5)<<map.Checking_Map()<<" |"<<endl;
         } 
         if (iter % 5 == 0)
         {
@@ -258,7 +258,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
         acc = sqrt(Sigma2[Sigma2.size()-1])/Results[Results.size()-1];
         if (verb >= INFO)
         {
-            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_START<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% |"<<endl;
+            cout<<"| "<<setw(6)<<iter<<" | "<<setw(12)<<NEVAL_REAL<<" | "<<setw(14)<<scientific<<setprecision(5)<<Results[Results.size()-1]<<" | "<<setw(14)<<scientific<<setprecision(5)<<sqrt(Sigma2[Sigma2.size()-1])<<" | "<<resetiosflags(ios::scientific)<<fixed<<setw(8)<<setprecision(3)<<acc*100<<"% |"<<endl;
         }
         if (iter%5==0)
         {

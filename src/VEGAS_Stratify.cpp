@@ -1,5 +1,6 @@
 #include "VEGAS_Stratify.h"
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -23,13 +24,13 @@ void VEGAS_Stratify::Reset_Storage()
     // N_STRAT = floor(pow(N_EVALUATES_TRAINED/4.0,1.0/N_DIM));
     
     N_HYPERCUBICS = pow(N_STRAT,N_DIM);
-    if (N_HYPERCUBICS > N_HYPERCUBICS_MAX)
+    if (N_HYPERCUBICS > N_HYPERCUBICS_MAX || N_DIM > 9) // if N_DIM too large, N_HYPERCUBICS will exceed the MAXIMUM number an integer can store
     {
         N_STRAT = floor(pow(N_HYPERCUBICS_MAX,1.0/N_DIM));
         N_HYPERCUBICS = pow(N_STRAT,N_DIM);
     }
     
-
+    
     V_cubic = pow(1.0/N_STRAT, N_DIM);
     JF2 = vector<double>(N_HYPERCUBICS,0);
     JF  = vector<double>(N_HYPERCUBICS,0);

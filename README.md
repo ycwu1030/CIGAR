@@ -1,5 +1,6 @@
-# VEGAS1D
-Implementation of VEGAS/VEGAS+ Algorithm for multi-dimension Integral.
+# CIGAR
+
+C++ Implementation of veGAs/veGAs+ algoRithm (CIGAR) for multi-dimension Integral.
 
 ## Reference
 

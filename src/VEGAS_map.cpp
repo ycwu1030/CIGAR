@@ -139,7 +139,7 @@ void VEGAS_Map::Smooth_Weight()
         {
             if (i==0)
             {
-                d_tmp = (7.0*weights[i_dim][0]+weights[i_dim][1])/(8.0*d_sum);
+                d_tmp = d_sum==0?0:(7.0*weights[i_dim][0]+weights[i_dim][1])/(8.0*d_sum);
                 if (d_tmp == 0)
                 {
                     d_tmp = 0;
@@ -151,7 +151,7 @@ void VEGAS_Map::Smooth_Weight()
             }
             else if (i==N_INTERVALS-1)
             {
-                d_tmp = (weights[i_dim][N_INTERVALS-2]+7.0*weights[i_dim][N_INTERVALS-1])/(8.0*d_sum);
+                d_tmp = d_sum==0?0:(weights[i_dim][N_INTERVALS-2]+7.0*weights[i_dim][N_INTERVALS-1])/(8.0*d_sum);
                 if (d_tmp == 0)
                 {
                     d_tmp = 0;
@@ -163,7 +163,7 @@ void VEGAS_Map::Smooth_Weight()
             }
             else
             {
-                d_tmp = (weights[i_dim][i-1] + 6.0*weights[i_dim][i] + weights[i_dim][i+1])/(8.0*d_sum);
+                d_tmp = d_sum==0?0:(weights[i_dim][i-1] + 6.0*weights[i_dim][i] + weights[i_dim][i+1])/(8.0*d_sum);
                 if (d_tmp == 0)
                 {
                     d_tmp = 0;
@@ -190,6 +190,10 @@ void VEGAS_Map::Update_Map()
         int current_old_interval = 0;
         int current_new_interval = 1;
         double d_accu = 0;
+        if (delta_weights[i_dim] == 0)
+        {
+            continue;
+        }
         while (true)
         {
             d_accu += delta_weights[i_dim];

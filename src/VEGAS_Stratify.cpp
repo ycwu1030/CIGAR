@@ -80,6 +80,14 @@ void VEGAS_Stratify::Update_DH()
         dh[i] = pow(d_tmp,beta);
         d_sum += dh[i];
     }
+    if (d_sum == 0)
+    {
+        for (int i = 0; i < N_HYPERCUBICS; i++)
+        {
+            dh[i] = 1.0/N_HYPERCUBICS;
+        }
+        return;
+    }
     for (int i = 0; i < N_HYPERCUBICS; i++)
     {
         dh[i] = dh[i]/d_sum;

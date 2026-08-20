@@ -30,6 +30,7 @@ public:
     void Set_Dimension(int N_DIM);
     void Set_NEVAL(int NEVAL_EXP);
     void Accumulate_Weight(int index, double weight);
+    void Reset_Weights();
     void Update_DH();
     std::vector<double> Get_Y(int index, std::vector<double> random_uni);
     int Get_NHYPERCUBICS(){return N_HYPERCUBICS;};

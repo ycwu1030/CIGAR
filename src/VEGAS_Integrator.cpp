@@ -113,6 +113,7 @@ void VEGAS_Integrator::Improve_Grid()
         // Map and Strata improves every another iteration.
         iter++;
         strat.Set_NEVAL(NEVAL_START);
+        strat.Reset_Weights();
         Results.push_back(0);
         Sigma2.push_back(0);
         NEVAL_REAL = 0;
@@ -221,6 +222,7 @@ void VEGAS_Integrator::Integration(double eps_rel, double eps_abs)
     {
         iter++;
         strat.Set_NEVAL(NEVAL_START);
+        strat.Reset_Weights();
         Results.push_back(0);
         Sigma2.push_back(0);
         NEVAL_REAL = 0;

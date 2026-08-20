@@ -70,6 +70,12 @@ void VEGAS_Stratify::Accumulate_Weight(int index, double weight)
     JF[index] += weight;
     Counts[index] += 1;
 }
+void VEGAS_Stratify::Reset_Weights()
+{
+    JF2 = vector<double>(N_HYPERCUBICS,0);
+    JF  = vector<double>(N_HYPERCUBICS,0);
+    Counts = vector<double>(N_HYPERCUBICS,0);
+}
 void VEGAS_Stratify::Update_DH()
 {
     double d_sum = 0;
